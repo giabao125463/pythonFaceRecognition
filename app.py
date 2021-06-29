@@ -19,7 +19,7 @@ def checkface(cmnd, avatar):
         cmnd_encoding = face_recognition.face_encodings(cmnd)[0]
         avatar_encoding = face_recognition.face_encodings(avatar)[0]
     except IndexError:
-        print("I wasn't able to locate any faces in at least one of the images. Check the image files. Aborting...")
+        return "<p>I wasn't able to locate any faces in at least one of the images. Check the image files. Aborting...</p>"
         quit()
 
     cmnd_faces = [
@@ -57,7 +57,7 @@ def upload_file():
         avatar = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ filename2)
         result = checkface(cmnd, avatar)
 
-        return "<h1>"+ result +"</h1><p>day la get</p>"
+        return "<h1>"+ result[0] +"</h1><p>day la get</p>"
     return "<h1>Distant Reading Archive</h1><p>day la get</p>"
 
 app.run()
