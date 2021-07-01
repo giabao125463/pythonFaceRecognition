@@ -2,6 +2,9 @@ import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 import face_recognition
+import detect
+from detect import h
+from flask_cors import CORS
 
 UPLOAD_FOLDER = './upload'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -9,6 +12,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app = Flask(__name__)
 app.config["DEBUG"] = True
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+CORS(app)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -20,7 +24,6 @@ def checkface(cmnd, avatar):
         avatar_encoding = face_recognition.face_encodings(avatar)[0]
     except IndexError:
         return "<p>I wasn't able to locate any faces in at least one of the images. Check the image files. Aborting...</p>"
-        quit()
 
     cmnd_faces = [
         cmnd_encoding
@@ -34,30 +37,40 @@ def checkface(cmnd, avatar):
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+        if 'cmnd' not in request.files:
+            return "<h1>khong thay file cmnd</h1><p>day la get</p>"
 
-        file = request.files['file']
-        file2 = request.files['file2']
+        file = request.files['cmnd']
+        file2 = request.files['cmndBack']
+        file3 = request.files['avatar']
 
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            return "<h1>khong thay file</h1><p>day la get</p>"
+            
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            front = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], front))
 
-            filename2 = secure_filename(file2.filename)
-            file2.save(os.path.join(app.config['UPLOAD_FOLDER'], filename2))
+            back = secure_filename(file2.filename)
+            file2.save(os.path.join(app.config['UPLOAD_FOLDER'], back))
 
-        cmnd = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ filename)
-        avatar = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ filename2)
+            avatar = secure_filename(file2.filename)
+            file3.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar))
+        
+        cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
+        ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back)
+
+        cmnd = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ front)
+        avatar = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ avatar)
         result = checkface(cmnd, avatar)
+        if (result):
+            result = 'Nhận dạng đúng người.'
+        else:
+            result = 'Không trùng khớp khuôn mặt và CMND.'
 
-        return "<h1>"+ result[0] +"</h1><p>day la get</p>"
+        return "<p>CMND: " + cmnd + "</p><p>Ho va ten: " + hovaten + "</p><p>ngay sinh: " + ngaysinh + "</p><p>nguyen quan: " + nguyenquan + "</p><p>ngay cap: " + ngaycap + "</p><p>Xác thực: " + result + "</p>"
     return "<h1>Distant Reading Archive</h1><p>day la get</p>"
 
 app.run()
