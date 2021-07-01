@@ -62,9 +62,9 @@ def upload_file():
         cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
         ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back)
 
-        cmnd = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ front)
-        avatar = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ avatar)
-        result = checkface(cmnd, avatar)
+        cmndImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ front)
+        avatarImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ avatar)
+        result = checkface(cmndImg, avatarImg)
         if (result):
             result = 'Nhận dạng đúng người.'
         else:
