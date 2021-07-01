@@ -59,8 +59,8 @@ def upload_file():
             avatar = secure_filename(file2.filename)
             file3.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar))
         
-        cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
-        ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back)
+        # cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
+        # ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back)
 
         cmndImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ front)
         avatarImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ avatar)
@@ -70,7 +70,9 @@ def upload_file():
         else:
             result = 'Không trùng khớp khuôn mặt và CMND.'
 
+        return "<p>Xac nhan: " + result
+
         return "<p>CMND: " + cmnd + "</p><p>Ho va ten: " + hovaten + "</p><p>ngay sinh: " + ngaysinh + "</p><p>nguyen quan: " + nguyenquan + "</p><p>ngay cap: " + ngaycap + "</p><p>Xác thực: " + result + "</p>"
     return "<h1>Distant Reading Archive</h1><p>day la get</p>"
 
-app.run()
+app.run('0.0.0.0')

@@ -88,7 +88,7 @@ def stackImages(scale, imgArray):
     return ver
 
 def getContours(img, imgContour, imgOrigin, name):
-    contours, hierarchy = cv2.findContours(
+    _, contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     # minArea = cv2.getTrackbarPos("minArea", "Parameters")
