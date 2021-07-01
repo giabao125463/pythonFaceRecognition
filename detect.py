@@ -88,7 +88,7 @@ def stackImages(scale, imgArray):
     return ver
 
 def getContours(img, imgContour, imgOrigin, name):
-    _, contours, hierarchy = cv2.findContours(
+    contours, hierarchy = cv2.findContours(
         img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     # minArea = cv2.getTrackbarPos("minArea", "Parameters")
@@ -120,7 +120,7 @@ def handleImg(img, posX_, posY_, posH_, posW_):
     return img[round(posY):round(posY+ height), round(posX):round(posX + width)]
 
 def createImgCMND(img):
-    posX_ = 81
+    posX_ = 78
     posY_ = 15
     posH_ = 6
     posW_ = 46
@@ -138,7 +138,7 @@ def createImgHoten(img):
     cv2.imwrite("hovaten.png", roi)
 
 def createImgNgaysinh(img):
-    posX_ = 91
+    posX_ = 85
     posY_ = 34
     posH_ = 6
     posW_ = 35

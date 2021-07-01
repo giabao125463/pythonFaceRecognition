@@ -56,7 +56,7 @@ def upload_file():
             back = secure_filename(file2.filename)
             file2.save(os.path.join(app.config['UPLOAD_FOLDER'], back))
 
-            avatar = secure_filename(file2.filename)
+            avatar = secure_filename(file3.filename)
             file3.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar))
         
         cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
