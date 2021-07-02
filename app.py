@@ -58,9 +58,12 @@ def upload_file():
 
             avatar = secure_filename(file3.filename)
             file3.save(os.path.join(app.config['UPLOAD_FOLDER'], avatar))
-        
-        cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front)
-        ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back)
+
+        frontName = file.filename.rsplit('.', 1)[0]
+        cmnd, hovaten, ngaysinh, nguyenquan = detect.CMNDFront(app.config['UPLOAD_FOLDER'] + "/"+ front, frontName)
+
+        backName = file2.filename.rsplit('.', 1)[0]
+        ngaycap = detect.CMNDBack(app.config['UPLOAD_FOLDER'] + "/"+ back, backName)
 
         cmndImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ front)
         avatarImg = face_recognition.load_image_file(app.config['UPLOAD_FOLDER'] + "/"+ avatar)

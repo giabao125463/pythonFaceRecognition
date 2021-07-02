@@ -16,6 +16,7 @@ frameWidth = 640
 frameHeight = 480
 TESTS_DIR = path.dirname(path.abspath(__file__))
 DATA_DIR = path.join(TESTS_DIR, 'upload')
+CONVERT_DIR = path.join(TESTS_DIR, 'convert')
 
 test_file = 'cmd.jpg'
 test_file_path = path.join(DATA_DIR, test_file)
@@ -47,6 +48,11 @@ def h(text):
     text = text.replace('', '')
 
     return text
+
+def saveImg(name, img):
+    save_path = path.join(CONVERT_DIR, name)
+    cv2.imwrite(save_path, img)
+    return save_path
 
 def stackImages(scale, imgArray):
     rows = len(imgArray)
@@ -106,8 +112,8 @@ def getContours(img, imgContour, imgOrigin, name):
             cv2.putText(imgContour, "Points: " + str(len(approx)), (x + w + 20, y + 20), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
             cv2.putText(imgContour, "Area: " + str(int(area)), (x + w + 20, y + 40), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 255, 0), 2)
 
-            roi = imgOrigin[y:y+h, x:x+w]
-            cv2.imwrite(name + ".png", roi)
+            img = imgOrigin[y:y+h, x:x+w]
+            saveImg(name + ".png", img)
 
 def handleImg(img, posX_, posY_, posH_, posW_):
     x, y, c = img.shape
@@ -119,68 +125,68 @@ def handleImg(img, posX_, posY_, posH_, posW_):
 
     return img[round(posY):round(posY+ height), round(posX):round(posX + width)]
 
-def createImgCMND(img):
+def createImgCMND(img, filename):
     posX_ = 78
     posY_ = 15
     posH_ = 6
     posW_ = 46
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("cmnd.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_cmnd.png", img)
 
-def createImgHoten(img):
+def createImgHoten(img, filename):
     posX_ = 70
     posY_ = 21
     posH_ = 8
     posW_ = 82
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("hovaten.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_hovaten.png", img)
 
-def createImgNgaysinh(img):
+def createImgNgaysinh(img, filename):
     posX_ = 85
     posY_ = 34
     posH_ = 6
-    posW_ = 35
+    posW_ = 47
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("ngaysinh.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_ngaysinh.png", img)
 
-def createImgNguyenquan(img):
+def createImgNguyenquan(img, filename):
     posX_ = 88
     posY_ = 40
     posH_ = 6
     posW_ = 41
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("nguyenquan.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_nguyenquan.png", img)
 
-def createImgNgaycapDay(img):
+def createImgNgaycapDay(img, filename):
     posX_ = 74
     posY_ = 31
     posH_ = 7
     posW_ = 13
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("ngaycapDay.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_ngaycapDay.png", img)
 
-def createImgNgaycapMonth(img):
+def createImgNgaycapMonth(img, filename):
     posX_ = 100
     posY_ = 31
     posH_ = 7
     posW_ = 13
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("ngaycapMonth.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_ngaycapMonth.png", img)
 
-def createImgNgaycapYear(img):
+def createImgNgaycapYear(img, filename):
     posX_ = 123
     posY_ = 31
     posH_ = 7
     posW_ = 25
 
-    roi = handleImg(img, posX_, posY_, posH_, posW_)
-    cv2.imwrite("ngaycapYear.png", roi)
+    img = handleImg(img, posX_, posY_, posH_, posW_)
+    return saveImg(filename + "_ngaycapYear.png", img)
 
 def get_string_from_image(img):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -192,7 +198,7 @@ def get_string_from_image(img):
     string = image_to_string(thresh, 'vie', config='--psm 6')
     return h(string)
 
-def CMNDFront(file_path):
+def CMNDFront(file_path, filename):
     img = cv2.imread(file_path)
     imgContour = img.copy()
 
@@ -206,28 +212,24 @@ def CMNDFront(file_path):
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
-    getContours(imgDil, imgContour, img, 'front')
-    roiImg = cv2.imread('front.png')
+    getContours(imgDil, imgContour, img, filename)
+    roiImg = cv2.imread(path.join(CONVERT_DIR, filename + '.png'))
 
-    createImgCMND(roiImg)
-    cmndImg = cv2.imread('cmnd.png')
+    cmndImg = cv2.imread(createImgCMND(roiImg, filename))
     cmnd = get_string_from_image(cmndImg)
 
-    createImgHoten(roiImg)
-    hovatenImg = cv2.imread('hovaten.png')
+    hovatenImg = cv2.imread(createImgHoten(roiImg, filename))
     hovaten = get_string_from_image(hovatenImg)
 
-    createImgNgaysinh(roiImg)
-    ngaysinhImg = cv2.imread('ngaysinh.png')
+    ngaysinhImg = cv2.imread(createImgNgaysinh(roiImg, filename))
     ngaysinh = get_string_from_image(ngaysinhImg)
 
-    createImgNguyenquan(roiImg)
-    nguyenquanImg = cv2.imread('nguyenquan.png')
+    nguyenquanImg = cv2.imread(createImgNguyenquan(roiImg, filename))
     nguyenquan = get_string_from_image(nguyenquanImg)
 
     return cmnd, hovaten, ngaysinh, nguyenquan
 
-def CMNDBack(file_path):
+def CMNDBack(file_path, filename):
     img = cv2.imread(file_path)
     imgContour = img.copy()
 
@@ -241,19 +243,16 @@ def CMNDBack(file_path):
     kernel = np.ones((5, 5))
     imgDil = cv2.dilate(imgCanny, kernel, iterations=1)
 
-    getContours(imgDil, imgContour, img, 'back')
-    roiImg = cv2.imread('back.png')
+    getContours(imgDil, imgContour, img, filename)
+    roiImg = cv2.imread(path.join(CONVERT_DIR, filename + '.png'))
     
-    createImgNgaycapDay(roiImg)
-    ngaycapDayImg = cv2.imread('ngaycapDay.png')
+    ngaycapDayImg = cv2.imread(createImgNgaycapDay(roiImg, filename))
     day = get_string_from_image(ngaycapDayImg)
 
-    createImgNgaycapMonth(roiImg)
-    ngaycapMonthImg = cv2.imread('ngaycapMonth.png')
+    ngaycapMonthImg = cv2.imread(createImgNgaycapMonth(roiImg, filename))
     month = get_string_from_image(ngaycapMonthImg)
 
-    createImgNgaycapYear(roiImg)
-    ngaycapYearImg = cv2.imread('ngaycapYear.png')
+    ngaycapYearImg = cv2.imread(createImgNgaycapYear(roiImg, filename))
     year = get_string_from_image(ngaycapYearImg)
 
     ngaycap = day+'-'+month+'-'+year
