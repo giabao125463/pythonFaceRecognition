@@ -188,14 +188,27 @@ def createImgNgaycapYear(img, filename):
     img = handleImg(img, posX_, posY_, posH_, posW_)
     return saveImg(filename + "_ngaycapYear.png", img)
 
-def get_string_from_image(img):
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    posX_ = cv2.getTrackbarPos("posX_", "Detect")
-    posY_ = cv2.getTrackbarPos("posY_", "Detect")
-    ret,thresh = cv2.threshold(gray, 80, 255, cv2.THRESH_TRUNC)
+def get_string_from_image(img, type):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
-    thresh = Image.fromarray(thresh.astype(np.uint8))
-    string = image_to_string(thresh, 'vie', config='--psm 6')
+    # Morph open to remove noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2,2))
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+
+    # Find contours and remove small noise
+    cnts = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        area = cv2.contourArea(c)
+        if area < 50:
+            cv2.drawContours(opening, [c], -1, 0, -1)
+
+    # Invert and apply slight Gaussian blur
+    result = 255 - opening
+    result = cv2.GaussianBlur(result, (3,3), 0)
+    dilation = cv2.dilate(result,kernel,iterations = 1)
+    string = image_to_string(dilation, lang=type , config='--psm 6')
     return h(string)
 
 def CMNDFront(file_path, filename):
@@ -216,16 +229,16 @@ def CMNDFront(file_path, filename):
     roiImg = cv2.imread(path.join(CONVERT_DIR, filename + '.png'))
 
     cmndImg = cv2.imread(createImgCMND(roiImg, filename))
-    cmnd = get_string_from_image(cmndImg)
+    cmnd = get_string_from_image(cmndImg, 'eng')
 
     hovatenImg = cv2.imread(createImgHoten(roiImg, filename))
-    hovaten = get_string_from_image(hovatenImg)
+    hovaten = get_string_from_image(hovatenImg, 'vie')
 
     ngaysinhImg = cv2.imread(createImgNgaysinh(roiImg, filename))
-    ngaysinh = get_string_from_image(ngaysinhImg)
+    ngaysinh = get_string_from_image(ngaysinhImg, 'eng')
 
     nguyenquanImg = cv2.imread(createImgNguyenquan(roiImg, filename))
-    nguyenquan = get_string_from_image(nguyenquanImg)
+    nguyenquan = get_string_from_image(nguyenquanImg, 'vie')
 
     return cmnd, hovaten, ngaysinh, nguyenquan
 
@@ -247,13 +260,13 @@ def CMNDBack(file_path, filename):
     roiImg = cv2.imread(path.join(CONVERT_DIR, filename + '.png'))
     
     ngaycapDayImg = cv2.imread(createImgNgaycapDay(roiImg, filename))
-    day = get_string_from_image(ngaycapDayImg)
+    day = get_string_from_image(ngaycapDayImg, 'eng')
 
     ngaycapMonthImg = cv2.imread(createImgNgaycapMonth(roiImg, filename))
-    month = get_string_from_image(ngaycapMonthImg)
+    month = get_string_from_image(ngaycapMonthImg, 'eng')
 
     ngaycapYearImg = cv2.imread(createImgNgaycapYear(roiImg, filename))
-    year = get_string_from_image(ngaycapYearImg)
+    year = get_string_from_image(ngaycapYearImg, 'eng')
 
     ngaycap = day+'-'+month+'-'+year
     return ngaycap
